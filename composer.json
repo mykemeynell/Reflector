@@ -1,0 +1,20 @@
+{
+    "name": "mykemeynell/reflect",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Myke Meynell",
+            "email": "myke.meynell@rarecreativegroup.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "mykemeynell\\Reflect\\": "src/"
+        },
+        "files": [
+            "src/Support/helpers.php"
+        ]
+    },
+    "require": {},
+    "description": "Tiny PHP reflection implementation"
+}
