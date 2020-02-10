@@ -75,7 +75,7 @@ class Reflect
      * @return mixed
      * @throws \ReflectionException
      */
-    public function getBinding($abstract)
+    protected function getBinding($abstract)
     {
         if (is_callable($abstract) || !array_key_exists($abstract, $this->bindings)) {
             return $abstract;
@@ -97,7 +97,7 @@ class Reflect
      *
      * @return bool
      */
-    public function bindingExists($abstract)
+    protected function bindingExists($abstract)
     {
         return array_key_exists($abstract, $this->bindings);
     }
@@ -122,7 +122,7 @@ class Reflect
      *
      * @return bool
      */
-    public function aliasExists($abstract): bool
+    protected function aliasExists($abstract): bool
     {
         return array_key_exists($abstract, $this->aliases);
     }
@@ -134,7 +134,7 @@ class Reflect
      *
      * @return mixed
      */
-    public function getAlias($abstract)
+    protected function getAlias($abstract)
     {
         if (is_callable($abstract) || !array_key_exists($abstract, $this->aliases)) {
             return $abstract;
@@ -164,7 +164,7 @@ class Reflect
      *
      * @return bool
      */
-    public function singletonExists($abstract): bool
+    protected function singletonExists($abstract): bool
     {
         return array_key_exists($abstract, $this->instances);
     }
@@ -176,7 +176,7 @@ class Reflect
      *
      * @return mixed
      */
-    public function getSingleton($abstract)
+    protected function getSingleton($abstract)
     {
         if (!array_key_exists($abstract, $this->instances)) {
             return $abstract;
@@ -194,7 +194,7 @@ class Reflect
      * @return mixed
      * @throws \ReflectionException
      */
-    function resolve($target, ...$args)
+    public function resolve($target, ...$args)
     {
         // If a singleton already exists for this target, we can return it first
         // as by definition we don't want to re-initialise its instance.
@@ -230,7 +230,7 @@ class Reflect
      * @return mixed
      * @throws \ReflectionException
      */
-    public function resolveFunction(\ReflectionFunction $reflectionFunction, $args)
+    protected function resolveFunction(\ReflectionFunction $reflectionFunction, $args)
     {
         $parameters = $reflectionFunction->getParameters();
         $dependencies = $this->getDependencies($parameters, $args);
@@ -247,7 +247,7 @@ class Reflect
      * @return object
      * @throws \ReflectionException
      */
-    public function resolveClass(\ReflectionClass $reflectionClass, $args)
+    protected function resolveClass(\ReflectionClass $reflectionClass, $args)
     {
         // Check that the target class can be instantiated.
         // i.e is not of type Trait or Interface.
