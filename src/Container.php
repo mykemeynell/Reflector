@@ -138,12 +138,12 @@ class Container
      * Make or retrieve an instance of a given target.
      *
      * @param       $target
-     * @param mixed ...$args
+     * @param mixed ...$parameters
      *
      * @return mixed
      * @throws \ReflectionException
      */
-    public function make($target, ...$args)
+    public function make($target, ...$parameters)
     {
         if (!is_callable($target) && $this->singletonExists($target)) {
             return $this->instance($target);
@@ -152,51 +152,38 @@ class Container
         // Check if there are any bindings that are set up against the given target.
         $target = $this->binding($target);
 
-
         // Determine if what is being reflected on is should be treated as
         // a function/helper or object.
-        $reflector = is_callable($target)
-            ? new \ReflectionFunction($target)
-            : new \ReflectionClass($target);
-
-
-
-        if (is_a($reflector, \ReflectionFunction::class)) {
-            /** @var \ReflectionFunction $reflector */
-            $parameters = $reflector->getParameters();
-            $dependencies = $this->getDependencies($parameters, $args);
-
-            return $reflector->invokeArgs($dependencies);
+        if (is_callable($target)) {
+            return $target(static::getContainerInstance());
         }
 
-        if (is_a($reflector, \ReflectionClass::class)) {
-            /** @var \ReflectionClass $reflector */
+        $reflector = new \ReflectionClass($target);
 
-            // Check that the target class can be instantiated.
-            // i.e is not of type Trait or Interface.
-            if (!$reflector->isInstantiable()) {
-                throw new \ReflectionException("Target [{$reflector->getName()}] is not instantiable");
-            }
-
-            // Now that we have determined that the target can be instantiated, we
-            // can move on to extracting the constructor.
-            $constructor = $reflector->getConstructor();
-
-            if (is_null($constructor)) {
-                // The target has no __construct method - so we can return the
-                // target as is.
-                return $reflector->newInstanceWithoutConstructor();
-            }
-
-            $parameters = $constructor->getParameters();
-            $dependencies = $this->getDependencies($parameters, $args);
-
-            return $reflector->newInstanceArgs($dependencies);
+        // Check that the target class can be instantiated.
+        // i.e is not of type Trait or Interface.
+        if (!$reflector->isInstantiable()) {
+            throw new \ReflectionException("Target [{$reflector->getName()}] is not instantiable");
         }
 
-        // Somehow '$reflector' has been initialised as something that isn't a
-        // ReflectionFunction or ReflectionClass.
-        throw new \ReflectionException("An unknown reflection type was created." . get_class($reflector));
+        // Now that we have determined that the target can be instantiated, we
+        // can move on to extracting the constructor.
+        $constructor = $reflector->getConstructor();
+
+        if (is_null($constructor)) {
+            // The target has no __construct method - so we can return the
+            // target as is.
+            return $reflector->newInstanceWithoutConstructor();
+        }
+
+        // Here we get the parameters and determine the dependencies that
+        // a constructor requires. We also pass through the parameters that have
+        // been passed from the $this->make($target, ...$parameters).
+        $parameters = $constructor->getParameters();
+        $dependencies = $this->getDependencies($parameters, $parameters);
+
+        // Create a new instance with arguments.
+        return $reflector->newInstanceArgs($dependencies);
     }
 
     /**
@@ -242,6 +229,11 @@ class Container
             return $parameter->getDefaultValue();
         }
 
-        throw new \ReflectionException("Failed to resolve unknown parameter [{$parameter->getName()}] at position [{$parameter->getPosition()}].");
+        $message = sprintf("Failed to resolve unknown parameter [%s] at position [%s]",
+            $parameter->getName(),
+            $parameter->getPosition()
+        );
+
+        throw new \ReflectionException($message);
     }
 }
