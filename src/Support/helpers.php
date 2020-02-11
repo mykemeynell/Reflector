@@ -1,22 +1,22 @@
 <?php
 
-if(! function_exists('reflect')) {
+if(! function_exists('container')) {
     /**
-     * Resolve a class.
+     * Resolve a class from the current container.
      *
      * @param string $target
      * @param array  $args
      *
-     * @return \mykemeynell\Reflect\Reflect|mixed
+     * @return \mykemeynell\Application\Container
      */
-    function reflect(?string $target = null, ...$args)
+    function container(?string $target = null, ...$args)
     {
-        $reflector = \mykemeynell\Reflect\Reflect::getReflectorInstance();
+        $container = \mykemeynell\Application\Container::getContainerInstance();
 
         if(empty($target)) {
-            return $reflector;
+            return $container;
         }
 
-        return call_user_func_array([$reflector, 'resolve'], func_get_args());
+        return call_user_func_array([$container, 'make'], func_get_args());
     }
 }

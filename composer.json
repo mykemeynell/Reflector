@@ -9,7 +9,7 @@
     ],
     "autoload": {
         "psr-4": {
-            "mykemeynell\\Reflect\\": "src/"
+            "mykemeynell\\Application\\": "src/"
         },
         "files": [
             "src/Support/helpers.php"
