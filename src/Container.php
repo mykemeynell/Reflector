@@ -67,14 +67,14 @@ class Container
      */
     protected function binding($abstract)
     {
-        if (is_callable($abstract) || !$this->bindingExists($abstract)) {
+        if (!$this->bindingExists($abstract)) {
             return $abstract;
         }
 
         $binding = $this->bindings[$abstract];
 
-        if (is_a($binding, \Closure::class)) {
-            return $this->make($binding);
+        if (is_callable($abstract)) {
+            return $this->make($binding, self::getContainerInstance());
         }
 
         return $binding;
@@ -103,7 +103,7 @@ class Container
      */
     public function singleton($abstract, $concrete = null): void
     {
-        $this->instances[$abstract] = $this->make($concrete);
+        $this->instances[$abstract] = $this->make($concrete, self::getContainerInstance());
     }
 
     /**
@@ -146,6 +146,8 @@ class Container
     public function make($target, ...$parameters)
     {
         if (!is_callable($target) && $this->singletonExists($target)) {
+            // The target is not callable and has a singleton associated -
+            // so we can return the singleton instance.
             return $this->instance($target);
         }
 
@@ -160,9 +162,6 @@ class Container
             return $target(static::getContainerInstance());
         }
 
-        // Call to mykemeynell\Application\DI::resolve($target, ...$args)
-        // to create instance of target.
-        return call_user_func_array([DI::class, 'resolve'],
-            array_merge([$target], [$parameters]));
+        return DI::resolve($target, $parameters);
     }
 }

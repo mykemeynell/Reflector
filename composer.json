@@ -16,5 +16,8 @@
         ]
     },
     "require": {},
-    "description": "Tiny PHP reflection implementation"
+    "description": "Tiny PHP reflection implementation",
+    "require-dev": {
+        "symfony/var-dumper": "^5.0"
+    }
 }

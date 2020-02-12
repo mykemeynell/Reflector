@@ -7,17 +7,18 @@ namespace mykemeynell\Application;
  *
  * @package mykemeynell\Application
  */
-class DI {
+class DI
+{
     /**
      * Resolve a target.
      *
      * @param       $target
-     * @param mixed ...$args
+     * @param array $args
      *
      * @return object
      * @throws \ReflectionException
      */
-    public static function resolve($target, ...$args)
+    public static function resolve($target, array $args = [])
     {
         $reflector = new \ReflectionClass($target);
 
@@ -41,7 +42,7 @@ class DI {
         // a constructor requires. We also pass through the parameters that have
         // been passed from the $this->make($target, ...$parameters).
         $parameters = $constructor->getParameters();
-        $dependencies = static::getDependencies($parameters, $parameters);
+        $dependencies = static::getDependencies($parameters, $args);
 
         // Create a new instance with arguments.
         return $reflector->newInstanceArgs($dependencies);
